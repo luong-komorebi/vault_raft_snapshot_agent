@@ -67,6 +67,7 @@ func (s *Snapshotter) ConfigureVaultClient(config *config.Configuration) error {
 	}
 
 	vaultConfig.Timeout = 1 * time.Hour
+	vaultConfig.HttpClient.Timeout = 1 * time.Hour
 
 	vaultConfig.ConfigureTLS(tlsConfig)
 	api, err := vaultApi.NewClient(vaultConfig)
