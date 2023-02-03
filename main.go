@@ -69,26 +69,26 @@ func main() {
 				log.Fatalln("Unable to generate snapshot", err.Error())
 			}
 			now := time.Now().UnixNano()
-			if c.Local.Path != "" {
-				snapshotPath, err := snapshotter.CreateLocalSnapshot(&snapshot, c, now)
-				logSnapshotError("local", snapshotPath, err)
-				if c.AWS.Bucket != "" {
-					snapshotPath, err := snapshotter.CreateS3Snapshot(snapshotPath, c, now)
-					logSnapshotError("aws", snapshotPath, err)
-				}
+			if c.AWS.Bucket != "" {
+				s3snapshotPath, s3err := snapshotter.HQCreateS3Snapshot(&snapshot, c, now)
+				logSnapshotError("hyperquery aws", s3snapshotPath, s3err)
 			}
+			// if c.Local.Path != "" {
+			// 	snapshotPath, err := snapshotter.CreateLocalSnapshot(&snapshot, c, now)
+			// 	logSnapshotError("local", snapshotPath, err)
+			// }
 			// if c.AWS.Bucket != "" {
 			// 	snapshotPath, err := snapshotter.CreateS3Snapshot(&snapshot, c, now)
 			// 	logSnapshotError("aws", snapshotPath, err)
 			// }
-			if c.GCP.Bucket != "" {
-				snapshotPath, err := snapshotter.CreateGCPSnapshot(&snapshot, c, now)
-				logSnapshotError("gcp", snapshotPath, err)
-			}
-			if c.Azure.ContainerName != "" {
-				snapshotPath, err := snapshotter.CreateAzureSnapshot(&snapshot, c, now)
-				logSnapshotError("azure", snapshotPath, err)
-			}
+			// if c.GCP.Bucket != "" {
+			// 	snapshotPath, err := snapshotter.CreateGCPSnapshot(&snapshot, c, now)
+			// 	logSnapshotError("gcp", snapshotPath, err)
+			// }
+			// if c.Azure.ContainerName != "" {
+			// 	snapshotPath, err := snapshotter.CreateAzureSnapshot(&snapshot, c, now)
+			// 	logSnapshotError("azure", snapshotPath, err)
+			// }
 		}
 		select {
 		case <-time.After(frequency):
