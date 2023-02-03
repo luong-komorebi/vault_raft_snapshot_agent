@@ -2,8 +2,8 @@ package snapshot_agent
 
 import (
 	"fmt"
-	"io"
 	"log"
+	"os"
 	"sort"
 	"strings"
 
@@ -14,8 +14,9 @@ import (
 )
 
 // CreateS3Snapshot writes snapshot to s3 location
-func (s *Snapshotter) CreateS3Snapshot(reader io.ReadWriter, config *config.Configuration, currentTs int64) (string, error) {
+func (s *Snapshotter) CreateS3Snapshot(filePath string, config *config.Configuration, currentTs int64) (string, error) {
 	keyPrefix := "raft_snapshots"
+	file, _ := os.Open(filePath)
 	if config.AWS.KeyPrefix != "" {
 		keyPrefix = config.AWS.KeyPrefix
 	}
@@ -23,7 +24,7 @@ func (s *Snapshotter) CreateS3Snapshot(reader io.ReadWriter, config *config.Conf
 	input := &s3manager.UploadInput{
 		Bucket:               &config.AWS.Bucket,
 		Key:                  aws.String(fmt.Sprintf("%s/raft_snapshot-%d.snap", keyPrefix, currentTs)),
-		Body:                 reader,
+		Body:                 file,
 		ServerSideEncryption: nil,
 	}
 

@@ -64,6 +64,7 @@ func main() {
 		} else {
 			var snapshot bytes.Buffer
 			err := snapshotter.API.Sys().RaftSnapshot(&snapshot)
+			log.Println("Successfully called RaftSnapshot API")
 			if err != nil {
 				log.Fatalln("Unable to generate snapshot", err.Error())
 			}
@@ -71,11 +72,15 @@ func main() {
 			if c.Local.Path != "" {
 				snapshotPath, err := snapshotter.CreateLocalSnapshot(&snapshot, c, now)
 				logSnapshotError("local", snapshotPath, err)
+				if c.AWS.Bucket != "" {
+					snapshotPath, err := snapshotter.CreateS3Snapshot(snapshotPath, c, now)
+					logSnapshotError("aws", snapshotPath, err)
+				}
 			}
-			if c.AWS.Bucket != "" {
-				snapshotPath, err := snapshotter.CreateS3Snapshot(&snapshot, c, now)
-				logSnapshotError("aws", snapshotPath, err)
-			}
+			// if c.AWS.Bucket != "" {
+			// 	snapshotPath, err := snapshotter.CreateS3Snapshot(&snapshot, c, now)
+			// 	logSnapshotError("aws", snapshotPath, err)
+			// }
 			if c.GCP.Bucket != "" {
 				snapshotPath, err := snapshotter.CreateGCPSnapshot(&snapshot, c, now)
 				logSnapshotError("gcp", snapshotPath, err)
